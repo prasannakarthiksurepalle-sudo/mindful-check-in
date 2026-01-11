@@ -6,6 +6,31 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Constants for validation
+const MAX_INPUT_LENGTH = 2000;
+const SUSPICIOUS_PATTERNS = [
+  /ignore\s+(previous|all|above)\s+instructions?/i,
+  /you\s+are\s+now\s+/i,
+  /forget\s+(everything|all|your)\s+/i,
+  /disregard\s+(previous|all|above)\s+/i,
+  /new\s+instructions?:/i,
+  /system\s*:\s*/i,
+];
+
+// Validate input for suspicious patterns
+function containsSuspiciousPatterns(text: string): boolean {
+  return SUSPICIOUS_PATTERNS.some(pattern => pattern.test(text));
+}
+
+// Sanitize input by removing potentially harmful content
+function sanitizeInput(text: string): string {
+  // Trim and limit length
+  let sanitized = text.trim().slice(0, MAX_INPUT_LENGTH);
+  // Remove excessive special characters (more than 10 in a row)
+  sanitized = sanitized.replace(/[^\w\s]{10,}/g, '...');
+  return sanitized;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -15,6 +40,7 @@ serve(async (req) => {
   try {
     const { text } = await req.json();
     
+    // Validate input exists and is a string
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return new Response(
         JSON.stringify({ error: 'Please provide your thoughts to analyze' }),
@@ -22,12 +48,36 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    // Server-side length validation
+    if (text.length > MAX_INPUT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Input must be ${MAX_INPUT_LENGTH} characters or less` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log('Analyzing mood for text:', text.substring(0, 100) + '...');
+    // Check for suspicious patterns that might be prompt injection attempts
+    if (containsSuspiciousPatterns(text)) {
+      console.warn('Suspicious input pattern detected');
+      return new Response(
+        JSON.stringify({ error: 'Invalid input detected. Please share your genuine feelings.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Sanitize the input
+    const sanitizedText = sanitizeInput(text);
+
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      console.error('LOVABLE_API_KEY is not configured');
+      return new Response(
+        JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Analyzing mood for sanitized text length:', sanitizedText.length);
 
     const systemPrompt = `You are a compassionate mental health analysis assistant. Analyze the user's message and provide:
 1. A sentiment label: "positive", "neutral", or "negative"
@@ -55,28 +105,29 @@ Be empathetic in your analysis. Consider context clues about workload, relations
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: text }
+          { role: 'user', content: sanitizedText }
         ],
       }),
     });
 
     if (!response.ok) {
+      // Log detailed error server-side only
       const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
+      console.error('Backend service error:', response.status, errorText);
       
+      // Return generic, safe error messages to client
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: 'Too many requests. Please wait a moment and try again.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      throw new Error(`AI gateway error: ${response.status}`);
+      
+      // Generic error for all other cases - don't expose status codes or implementation details
+      return new Response(
+        JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const data = await response.json();
@@ -134,9 +185,12 @@ Be empathetic in your analysis. Consider context clues about workload, relations
     });
 
   } catch (error) {
+    // Log detailed error server-side only
     console.error('Error in analyze-mood function:', error);
+    
+    // Return generic, safe error message to client - never expose internal details
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error occurred' }),
+      JSON.stringify({ error: 'An unexpected error occurred. Please try again later.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
