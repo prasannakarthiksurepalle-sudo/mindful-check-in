@@ -1,17 +1,10 @@
-# Welcome to your Lovable project
+# Welcome to my  project
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/
-## How can I edit this code?
+Mind Track is a simple prototype mental health application focused on analyzing user stress through text input. In its current form, the app presents a window where users can describe their thoughts or feelings, and the system analyzes this input to estimate stress levels and provide basic suggestions to improve well-being. While planned features such as scheduled mood check-ins, notifications, and long-term mood tracking are not yet implemented, this project serves as a working model to explore stress analysis and mental health insights. Future updates aim to expand functionality and introduce more advanced tracking and lifestyle-based recommendations.
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
+**Live URL**: https://mindtrack11.netlify.app/
 
 **Use your preferred IDE**
 
@@ -21,9 +14,9 @@ The only requirement is having Node.js & npm installed - [install with nvm](http
 
 Follow these steps:
 
-```sh
+
 # Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+git clone https://github.com/prasannakarthiksurepalle-sudo/mindful-check-in
 
 # Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
@@ -33,7 +26,7 @@ npm i
 
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
-```
+
 
 **Edit a file directly in GitHub**
 
@@ -49,8 +42,6 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## What technologies are used for this project?
-
 This project is built with:
 
 - Vite
@@ -58,15 +49,3 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
