@@ -2,15 +2,11 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
-
-## How can I edit this code?
-
-There are several ways of editing your application.
+**URL**: https://mindtrack11.netlify.app/
 
 **Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Simply visit the [Lovable Project](https://lovable.dev/projects/6f6a4b5c-f947-47a4-b2fd-b72cd48c3afc) and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
 
@@ -50,8 +46,6 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## What technologies are used for this project?
-
 This project is built with:
 
 - Vite
@@ -59,15 +53,3 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
